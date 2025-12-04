@@ -1,6 +1,8 @@
 import { Circle, CircleCheck } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 export default function SignUp() {
     const navigate=useNavigate();
     const [username, setusername] = useState('');
@@ -60,9 +62,10 @@ export default function SignUp() {
         })
         const data=await res.json();
         if(data.status=="ok"){
+            toast.success("User Created Successfully");
             navigate("/signin");
         }else{
-            alert(`${data.error}`);
+            toast.error(`${data.error}`);
         }
     }
 

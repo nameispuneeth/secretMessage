@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 export default function SignIn() {
   const navigate=useNavigate();
   const [email, setemail] = useState("");
@@ -19,11 +21,12 @@ export default function SignIn() {
     })
     const data=await res.json();
     if(data.status==="ok"){
+      toast.success("Login Successful");
       if(selected) localStorage.setItem("token",data.token);
       else sessionStorage.setItem("token",data.token)
       navigate("/");
     }else{
-      alert(`${data.error}`)
+      toast.error(`${data.error}`)
     }
   }
   let Spinner = () => {
