@@ -23,8 +23,15 @@ export default function SignIn() {
     console.table(data)
     if(data.status==="ok"){
       toast.success("Login Successful");
-      if(selected) localStorage.setItem("token",data.token);
-      else sessionStorage.setItem("token",data.token)
+      if(selected){
+        localStorage.setItem("token",data.token);
+        localStorage.setItem("URLtoken",data.urltoken);
+      }
+      else{
+        sessionStorage.setItem("token",data.token);
+        sessionStorage.setItem("URLtoken",data.urltoken);
+      }
+
       navigate("/");
     }else{
       toast.error(`${data.error}`)

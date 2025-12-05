@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('./models/user.model');
 const jwt=require("jsonwebtoken");
+const {nanoid}=require("nanoid");
 require("dotenv").config()
 
 mongoose.connect('mongodb://localhost:27017/secretMessage').then(()=>{
@@ -16,7 +17,7 @@ mongoose.connect('mongodb://localhost:27017/secretMessage').then(()=>{
 
 app.use(cors());
 app.use(express.json());
-const SecretCode=process.env.SecretCode;
+const SecretCode=process.env.SecretKey;
 
 app.post("/api/signup",async (req,res)=>{
     const {username,email,password}=req.body;
@@ -24,7 +25,11 @@ app.post("/api/signup",async (req,res)=>{
         const user=await User.findOne({email});
         if(user) res.send({status:'error',error:'Email already exists'});
         const newPwd=await bcrypt.hash(password,10);
-        const newuser=User.create({username,email,password:newPwd});
+        let newsharedId=nanoid(10);
+        while(await User.findOne({shareid:newsharedId})){
+            newsharedId=nanoid(10);
+        }
+        const newuser=User.create({username,email,password:newPwd,shareid:newsharedId});
         if(newuser) res.send({status:'ok',message:'User created successfully'});
         else res.send({status:'error',error:'Failed to create user'});
     }catch(error){
@@ -34,19 +39,18 @@ app.post("/api/signup",async (req,res)=>{
 
 app.post("/api/signin",async (req,res) => {
     const {email,password}=req.body;
+    console.log(email,password);
     try{
         const user=await User.findOne({email:email});
         if(!user) res.send({status:'error',error:'Email Doesnt Exist'});
         const PWD=await bcrypt.compare(password,user.password);
         if(PWD){
             const token=jwt.sign({email:user.email},SecretCode);
-            const urltoken=jwt.sign({id:user._id},SecretCode);
-
-            res.send({status:'ok',token:token,urltoken:urltoken});
+            res.send({status:'ok',token:token,urltoken:user.shareid});
         }
         else res.send({status:'error',error:"Invalid Credentials"});
     }catch(e){
-        res.send({status:'error',error:e.error});
+        res.send({status:'error',error:"Network Issues"});
     }
 })
 
