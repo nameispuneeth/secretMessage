@@ -1,4 +1,4 @@
-import { Copy,CheckIcon } from "lucide-react"
+import { Copy,CheckIcon,Trash  } from "lucide-react"
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ export default function Home(){
     }
 
     const fetchDetails=async()=>{
+
         setloading(true);
         let response=await fetch("http://localhost:8000/api/FetchUserDetails",{
             method:"GET",
@@ -27,10 +28,9 @@ export default function Home(){
         })
         
         let data=await response.json();
-        console.log(data);
 
         if(data.status=="ok"){
-            setmessages(data.messages);
+            setmessages(data.messages.reverse());
             urlToken.current=data.shareid;
         }else{
             toast.error(data.error);
@@ -52,6 +52,87 @@ export default function Home(){
             <div className="w-12 h-12 border-4 border-white border-t-gray-700 rounded-full animate-spin"></div>
           </div>
         );
+      }
+      const deleteMSG=async (val)=>{
+        const response=await fetch("http://localhost:8000/api/DeleteMSG",{
+            method:"POST",
+            headers:{
+                'authorization':token,
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                msg:val
+            })
+        })
+        const data=await response.json();
+        if(data.status=="ok"){
+            toast.success("Message Deleted Successfully");
+            setmessages(prev =>
+                prev.filter(m => !(m.message === val.message && m.sentAt === val.sentAt))
+            );
+        }else{
+            toast.error(data.error);
+        }
+      }
+      let MessageCard=({val})=>{
+        const [expanded,setexpanded]=useState(false);
+        const limit=100;
+        const [data,setdata]=useState((val.message).substring(0,limit));
+
+        const pastdate=new Date(val.sentAt);
+        const currDate=new Date();
+        const diff=(currDate-pastdate)/1000;
+        let dateStr="";
+        let years=Math.floor(diff/(60*60*24*365));
+        let months=Math.floor(diff/(60*60*24*30));
+        let weeks=Math.floor(diff/(60*60*24*7));
+        let days=Math.floor(diff/(60*60*24));
+        let hours=Math.floor(diff/(60*60));
+        let minutes=Math.floor(diff/60);
+        let seconds=Math.floor(diff);
+
+        if(years>0) dateStr=`${years} ${years>1?'Years':'Year'} Ago`
+        else if(months>0) dateStr=`${months} ${months>1?'Months':'Month'} Ago`
+        else if(weeks>0) dateStr=`${weeks} ${weeks>1?'Weeks':'Week'} Ago`
+        else if(days>0) dateStr=`${days} ${days>1?'Days':'Day'} Ago`
+        else if(hours>0) dateStr=`${hours} ${hours>1?'Hours':'Hour'} Ago`
+        else if(minutes>0) dateStr=`${minutes} ${minutes>1?'Minutes':'Minute'} Ago`
+        else  dateStr=`${seconds} ${seconds>1?'Seconds':'Second'} Ago`
+
+      return (
+    <div className="bg-[rgba(50,50,50,1)] rounded-sm p-2 m-3 overflow-hidden">
+        <div className="flex justify-between">
+            <div className="grow min-w-0 pr-2">
+                <p className="text-md wrap-break-word overflow-hidden">{data}</p>
+
+                {val.message.length > limit && !expanded && (
+                    <p className="text-blue-500 cursor-pointer"
+                       onClick={() => {
+                           setexpanded(true);
+                           setdata(val.message);
+                       }}>
+                        Show More...
+                    </p>
+                )}
+
+                {val.message.length > limit && expanded && (
+                    <p className="text-blue-500 cursor-pointer"
+                       onClick={() => {
+                           setexpanded(false);
+                           setdata(val.message.substring(0, limit));
+                       }}>
+                        Show Less...
+                    </p>
+                )}
+            </div>
+
+            <Trash size={16} className="cursor-pointer shrink-0 m-2" onClick={()=>deleteMSG(val)}/>
+        </div>
+
+        <p className="text-sm font-extralight">{dateStr}</p>
+    </div>
+);
+
       }
 
     return(
@@ -75,13 +156,11 @@ export default function Home(){
                 <hr className="mt-10 border-t border-dashed"/>
                 </div>
                 <div>
-                    <p>Your Messages :</p>
-                    {messages.map((val,ind)=>(
-                        <div key={ind} className="bg-gray-600 rounded-sm p-2">
-                            <p>{val.message}</p>
-                            <p>{val.sentAt}</p>
-                        </div>
-                    ))}
+                    <p className="mb-5 text-xl">Your Messages :</p>
+                    {messages.length==0 && <p className="text-center bg-[rgba(50,50,50,1)] p-20 text-lg rounded-sm">No Data Found</p>}
+                    {messages.map((val,ind)=>{
+                        return <MessageCard key={ind} val={val}/>
+                        })}
                 </div>
             </div>)}
         </div>

@@ -96,6 +96,25 @@ app.post("/api/sendMessage/:token",async(req,res)=>{
     }
 })
 
+app.post("/api/DeleteMSG",async(req,res)=>{
+    const val=req.body.msg;
+    const token=req.headers.authorization;
+    try{
+        const decoded=jwt.verify(token,SecretCode);
+        const response=await User.updateOne({email:decoded.email},{
+            $pull:{
+                messages:{
+                    message:val.message,
+                    sentAt:val.sentAt
+                }
+            }
+        })
+        res.send({status:'ok'})
+    }catch(e){
+        res.send({status:'error',error:'Network Issues'});
+    }
+})
+
 app.get('/', (req, res) => {
     res.send('Hello World');
 });
