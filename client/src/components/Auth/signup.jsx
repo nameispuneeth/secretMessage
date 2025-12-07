@@ -1,4 +1,4 @@
-import { Circle, CircleCheck } from "lucide-react"
+import { Circle, Check } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -82,19 +82,19 @@ export default function SignUp() {
                     <input type="password" className="w-full h-12 rounded-lg bg-[rgba(50,50,50,1)] text-center text-lg font-light" placeholder="Enter Your Password" value={password} onChange={(e) =>handlePWDChange(e)}></input>
                     <div className="text-sm font-light mt-5">
                         <div className="flex items-center gap-2">
-                            {password.length < 5 ? <Circle size={15} /> : <CircleCheck size={15} color={'green'} />}
+                            {password.length < 5 ? <Circle size={15} /> : <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full" />}
                             <p>Minimum Length Of 5</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            {containsAlphabets ?  <CircleCheck size={15} color={'green'}/>:<Circle size={15} />}
+                            {containsAlphabets ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
                             <p>Contains Both UpperCase and LowerCase Letters</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            {containsDigit ?  <CircleCheck size={15} color={'green'}/>:<Circle size={15} />}
+                            {containsDigit ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
                             <p>Contains Atleast One Digit</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            {containsSymbol ?  <CircleCheck size={15} color={'green'}/>:<Circle size={15} />}
+                            {containsSymbol ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
                             <p>Contains Atleast One Symbol </p>
                         </div>
                     </div>

@@ -59,7 +59,6 @@ app.get("/api/ValidToken/:token",async(req,res)=>{
     try{
         const user=await User.findOne({shareid:token});
         if(!user) return res.send({status:'error',error:"Not A Valid URL"});
-        console.log(user);
         res.send({status:'ok',name:user.username});
     }catch(e){
         res.send({status:'error',error:"Network Issue"});
@@ -112,6 +111,28 @@ app.post("/api/DeleteMSG",async(req,res)=>{
         res.send({status:'ok'})
     }catch(e){
         res.send({status:'error',error:'Network Issues'});
+    }
+});
+
+app.get("/api/ChangeURL",async (req,res) => {
+    const token=req.headers.authorization;
+    try{
+        const decoded=jwt.verify(token,SecretCode);
+        const user=await User.findOne({email:decoded.email});
+        if(!user){
+            return res.send({status:'error',error:'User Not Found'});
+        }
+        let newsharedId=nanoid(10);
+        while(await User.findOne({shareid:newsharedId})){
+            newsharedId=nanoid(10);
+        }
+        user.shareid=newsharedId;
+        user.messages=[];
+        await user.save();
+        return res.send({status:'ok',urlToken:newsharedId});
+        
+    }catch(e){
+        res.send({status:'error',error:"Network Issues"});
     }
 })
 

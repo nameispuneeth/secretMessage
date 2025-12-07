@@ -1,24 +1,24 @@
-import { Copy,CheckIcon,Trash  } from "lucide-react"
+import { Copy,CheckIcon,Trash ,RefreshCcw } from "lucide-react"
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 export default function Home(){
-
+    const [messagesLoading,setmessagesLoading]=useState(false);
     const navigate=useNavigate();
-    const token=localStorage.getItem("token") || sessionStorage.getItem("token");
     const urlToken=useRef("");
     const [loading,setloading]=useState(false);
     const [messages,setmessages]=useState([]);
 
-    if(!token){
-        toast.error("Login Required");
-        navigate("/signin");
-    }
+   
 
     const fetchDetails=async()=>{
-
-        setloading(true);
+        const token=localStorage.getItem("token") || sessionStorage.getItem("token");
+        if(!token){
+            toast.error("Login Required");
+            navigate("/signin");
+            return;
+        }
         let response=await fetch("http://localhost:8000/api/FetchUserDetails",{
             method:"GET",
             headers:{
@@ -40,12 +40,22 @@ export default function Home(){
     }
 
     useEffect(()=>{
+        setloading(true);
         fetchDetails();
     },[])
 
     const URL=`${window.location.origin}/u/${urlToken.current}`;
     const [urlCopy,seturlCopy]=useState(false);
 
+
+    const MSGSpinner = () => {
+        return (
+            <div className="flex justify-center items-center">
+          <div className="w-6 h-6 border-4 border-gray-700 border-t-gray-200 rounded-full animate-spin"></div>
+          </div>
+        );
+      };
+      
     let Spinner = () => {
         return (
           <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50">
@@ -54,6 +64,7 @@ export default function Home(){
         );
       }
       const deleteMSG=async (val)=>{
+        const token=localStorage.getItem("token") || sessionStorage.getItem("token");
         const response=await fetch("http://localhost:8000/api/DeleteMSG",{
             method:"POST",
             headers:{
@@ -135,11 +146,31 @@ export default function Home(){
 
       }
 
+      const ChangeURL=async()=>{
+        const token=localStorage.getItem("token") || sessionStorage.getItem("token");
+        const response=await fetch("http://localhost:8000/api/ChangeURL",{
+            method:"GET",
+            headers:{
+                'authorization':token
+            }
+        });
+        const data=await response.json();
+        console.log(data);
+        if(data.status=="ok"){
+            toast.success("URL Changed SuccesFully");
+            console.log(data);
+            setmessages([]);
+            urlToken.current=data.urlToken;
+        }else{
+            toast.error(data.error);
+        }
+      }
+
     return(
         <div className="bg-[radial-gradient(circle_at_center,#2c2c2c,#0d0d0d)] flex flex-col justify-center items-center min-h-screen text-white p-6 overflow-hidden" >
             {loading?<Spinner/>:
             (<div className="rounded-2xl shadow-lg p-8 w-full max-w-md bg-[rgba(0,0,0,0.4)] space-y-10 flex-1 flex-col items-center justify-center ">
-                <div className="space-y-3 ">
+                <div className="space-y-3">
                 <p className="w-full text-md font-bold text-center">Your Link For Secret Message :</p>
                 <div className="w-full rounded-lg bg-[rgba(50,50,50,1)] text-center text-xl font-light flex justify-between items-center p-2">
                     <p className=" overflow-x-auto custom-scrollbar m-2 grow text-left whitespace-nowrap">{URL}</p>
@@ -153,12 +184,25 @@ export default function Home(){
                         },4000);
                     }}/>)}
                 </div>
-                <hr className="mt-10 border-t border-dashed"/>
+                <div className="flex justify-center mb-0">
+                <button className="m-2 bg-black border border-gray-300 items-center cursor-pointer p-3"> Share </button>
+                <button className="m-2 bg-black border border-gray-300 items-center cursor-pointer p-3" onClick={()=>ChangeURL()}> Change My URL </button>
+
+                </div>
+                <hr className="mt-5 border-t border-dashed"/>
                 </div>
                 <div>
-                    <p className="mb-5 text-xl">Your Messages :</p>
+                    <div className="flex justify-between items-center mb-5">
+                        <p className="text-xl">Your Messages :</p>
+                        <RefreshCcw size={18} className="cursor-pointer" onClick={async()=>{
+                            setmessagesLoading(true);
+                            await fetchDetails();
+                            setmessagesLoading(false);
+                        }}/>
+                    </div>
+                    {messagesLoading && <p className="text-center bg-[rgba(50,50,50,1)] p-20 text-lg rounded-sm">{MSGSpinner()}</p>}
                     {messages.length==0 && <p className="text-center bg-[rgba(50,50,50,1)] p-20 text-lg rounded-sm">No Data Found</p>}
-                    {messages.map((val,ind)=>{
+                    {!messagesLoading && messages.map((val,ind)=>{
                         return <MessageCard key={ind} val={val}/>
                         })}
                 </div>
