@@ -185,7 +185,18 @@ export default function Home(){
                     }}/>)}
                 </div>
                 <div className="flex justify-center mb-0">
-                <button className="m-2 bg-black border border-gray-300 items-center cursor-pointer p-3"> Share </button>
+                <button className="m-2 bg-black border border-gray-300 items-center cursor-pointer p-3" onClick={()=>{
+                      if (navigator.share) {
+                        navigator.share({
+                          title: "Check this out!",
+                          text: "Here is my secret message link:",
+                          url: URL,
+                        });
+                      } else {
+                        navigator.clipboard.writeText(URL);
+                        toast.info("Link copied to clipboard");
+                      }
+                }}> Share </button>
                 <button className="m-2 bg-black border border-gray-300 items-center cursor-pointer p-3" onClick={()=>ChangeURL()}> Change My URL </button>
 
                 </div>
