@@ -10,10 +10,16 @@ const userSchema = new mongoose.Schema({
         unique:true,
         required: true
     },
+    GoogleUniqueId:{
+        type:String,
+        unique:true,
+        sparse:true,
+        default:null
+    },
     password: {
         type: String,
-        required: true
     },
+
     shareid:{type:String,unique:true},
     messages:[
         {

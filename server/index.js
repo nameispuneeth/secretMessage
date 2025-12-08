@@ -9,6 +9,8 @@ const jwt=require("jsonwebtoken");
 const {nanoid}=require("nanoid");
 require("dotenv").config()
 
+const {oauth2Client} = require("./utils/googleClient")
+
 mongoose.connect('mongodb://localhost:27017/secretMessage').then(()=>{
     console.log('Connected to MongoDB');
 }).catch((error)=>{
@@ -42,7 +44,8 @@ app.post("/api/signin",async (req,res) => {
     console.log(email,password);
     try{
         const user=await User.findOne({email:email});
-        if(!user) res.send({status:'error',error:'Email Doesnt Exist'});
+        if(!user) return res.send({status:'error',error:'Email Doesnt Exist'});
+        else if(!user.password) return res.send({status:'error',error:"Account registered with Google. Please login with Google."})
         const PWD=await bcrypt.compare(password,user.password);
         if(PWD){
             const token=jwt.sign({email:user.email},SecretCode);
@@ -136,6 +139,38 @@ app.get("/api/ChangeURL",async (req,res) => {
     }
 })
 
+app.get("/api/google/:code",async(req,res)=>{
+    const code=req.params.code;
+    try{
+        const googleRes = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(googleRes.tokens);
+        const userRes = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`,{
+            method:'GET'
+        });
+        const data=await userRes.json();
+        const {id:googleId,email,name}=data;
+        let user=await User.findOne({email:email});
+        if(user){
+            user.GoogleUniqueId=googleId;
+            await user.save();
+        }else{
+            let newsharedId=nanoid(10);
+            while(await User.findOne({shareid:newsharedId})){
+                newsharedId=nanoid(10);
+            }
+            const newuser=await User.create({
+                email:email,
+                GoogleUniqueId:googleId,
+                username:name,
+                shareid:newsharedId
+            });
+        }
+        const token=jwt.sign({email:email},SecretCode);
+        res.send({status:'ok',token:token});
+    }catch(e){
+
+    }
+})
 app.get('/', (req, res) => {
     res.send('Hello World');
 });

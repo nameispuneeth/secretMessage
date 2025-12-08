@@ -188,7 +188,7 @@ export default function Home(){
                 <button className="m-2 bg-black border border-gray-300 items-center cursor-pointer p-3" onClick={()=>{
                       if (navigator.share) {
                         navigator.share({
-                          title: "Check this out!",
+                          title: "Check Out My Secret Message Link !!",
                           text: "Here is my secret message link:",
                           url: URL,
                         });

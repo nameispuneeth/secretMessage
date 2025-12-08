@@ -1,3 +1,4 @@
+import { useGoogleLogin } from "@react-oauth/google";
 import { Circle, Check } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
@@ -71,6 +72,33 @@ export default function SignUp() {
         setloading(false);
     }
 
+    const responseFromGoogle=async(authRes)=>{
+        try{
+          if(authRes.code){
+            const encodedCode = encodeURIComponent(authRes.code);
+            const response=await fetch(`http://localhost:8000/api/google/${encodedCode}`,{
+              method:"GET"
+            });
+            const data=await response.json();
+            if(data.status=="ok"){
+              toast.success("Successfully Registered.");
+              sessionStorage.setItem("token",data.token);
+              navigate("/");
+            }else{
+              toast.error(data.error);
+            }
+          }
+        }catch(e){
+          toast.error("Unable To Access");
+        }
+      }
+
+    const googleLogin=useGoogleLogin({
+        onSuccess:responseFromGoogle,
+        onError:responseFromGoogle,
+        flow:'auth-code'
+    })
+
     return (
         <div className="bg-[radial-gradient(circle_at_center,#2c2c2c,#0d0d0d)] flex flex-col justify-center items-center min-h-screen text-white p-6 overflow-hidden" >
             {loading && <Spinner/>}
@@ -101,6 +129,8 @@ export default function SignUp() {
                 </div>
                 <div className="space-y-5">
                     <button className="w-full h-14 rounded-lg bg-black cursor-pointer border-2 border-gray-600 text-center text-lg font-bold" onClick={()=>handleSubmit()}>Register</button>
+                    <button className="w-full h-14 rounded-lg bg-black border-2 cursor-pointer border-gray-600 text-center text-lg font-bold mb-6" onClick={googleLogin}>Continue With Google</button>
+
                 <span className="flex gap-2 text-center justify-center text-sm">Already Have An Account ?  
                     <p className="font-bold cursor-pointer" onClick={()=>navigate("/signin")}> Login</p>
                 </span>
