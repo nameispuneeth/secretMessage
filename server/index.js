@@ -11,7 +11,7 @@ require("dotenv").config()
 
 const {oauth2Client} = require("./utils/googleClient")
 
-mongoose.connect('mongodb://localhost:27017/secretMessage').then(()=>{
+mongoose.connect(process.env.MONGODB_URL).then(()=>{
     console.log('Connected to MongoDB');
 }).catch((error)=>{
     console.log(error);
