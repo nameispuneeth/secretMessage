@@ -169,6 +169,25 @@ app.get("/api/google/:code",async(req,res)=>{
 
     }
 })
+
+
+app.post("/api/changetoCustomURL",async(req,res)=>{
+    const URL=req.body.URL;
+    const token=req.headers.authorization;
+    console.log(URL,token);
+    try{
+        const dummyuser=await User.findOne({shareid:URL});
+        const decoded=jwt.verify(token,SecretCode);
+        const user=await User.findOne({email:decoded.email});
+        if(!user) return res.send({status:'error',error:'User Not Found'});
+        if(dummyuser && dummyuser.username!=user.username) return res.send({status:'error',error:'URL exists. Choose Another.'});
+        user.shareid=URL;
+        await user.save();
+        return res.send({status:'ok'});
+    }catch(e){
+        return res.send({status:'error',error:'Network Issues'});
+    }
+})
 app.get('/', (req, res) => {
     res.send('Hello World');
 });

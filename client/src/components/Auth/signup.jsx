@@ -3,6 +3,8 @@ import { Circle, Check } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import GoogleLogo from "../../assets/google.png"
+
 
 export default function SignUp() {
     const navigate=useNavigate();
@@ -110,26 +112,26 @@ export default function SignUp() {
                     <input type="password" className="w-full h-12 rounded-lg bg-[rgba(50,50,50,1)] text-center text-lg font-light" placeholder="Enter Your Password" value={password} onChange={(e) =>handlePWDChange(e)}></input>
                     <div className="text-sm font-light mt-5">
                         <div className="flex items-center gap-2">
-                            {password.length < 5 ? <Circle size={15} /> : <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full" />}
+                            {password.length < 5 ? <Circle size={15} /> : <Check size={15} strokeWidth={4} color={'white'} className="bg-green-600 border border-white p-0.5 rounded-full" />}
                             <p>Minimum Length Of 5</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            {containsAlphabets ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
+                            {containsAlphabets ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-600 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
                             <p>Contains Both UpperCase and LowerCase Letters</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            {containsDigit ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
+                            {containsDigit ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-600 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
                             <p>Contains Atleast One Digit</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            {containsSymbol ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-800 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
+                            {containsSymbol ?  <Check size={15} strokeWidth={4} color={'white'} className="bg-green-600 border border-white p-0.5 rounded-full"/>:<Circle size={15} />}
                             <p>Contains Atleast One Symbol </p>
                         </div>
                     </div>
                 </div>
                 <div className="space-y-5">
                     <button className="w-full h-14 rounded-lg bg-black cursor-pointer border-2 border-gray-600 text-center text-lg font-bold" onClick={()=>handleSubmit()}>Register</button>
-                    <button className="w-full h-14 rounded-lg bg-black border-2 cursor-pointer border-gray-600 text-center text-lg font-bold mb-6" onClick={googleLogin}>Continue With Google</button>
+                    <button className="w-full h-14 rounded-lg bg-black border-2 cursor-pointer border-gray-600 text-center text-lg font-bold mb-6 flex justify-center items-center gap-3" onClick={googleLogin}><img src={GoogleLogo} height={25} width={25}></img><span>Continue With Google</span></button>
 
                 <span className="flex gap-2 text-center justify-center text-sm">Already Have An Account ?  
                     <p className="font-bold cursor-pointer" onClick={()=>navigate("/signin")}> Login</p>
