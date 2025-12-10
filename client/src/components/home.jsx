@@ -282,7 +282,7 @@ export default function Home() {
                             }} />
                         </div>
                         {messagesLoading && <div className="text-center bg-[rgba(50,50,50,1)] p-20 text-lg rounded-sm">{MSGSpinner()}</div>}
-                        {messages.length == 0 && <p className="text-center bg-[rgba(50,50,50,1)] p-20 text-lg rounded-sm">No Data Found</p>}
+                        {!messagesLoading && messages.length == 0 && <p className="text-center bg-[rgba(50,50,50,1)] p-20 text-lg rounded-sm">No Data Found</p>}
                         {!messagesLoading && messages.map((val, ind) => {
                             return <MessageCard key={ind} val={val} />
                         })}
