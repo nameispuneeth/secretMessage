@@ -155,10 +155,8 @@ export default function Home() {
             }
         });
         const data = await response.json();
-        console.log(data);
         if (data.status == "ok") {
             toast.success("URL Changed SuccesFully");
-            console.log(data);
             setURL(`${window.location.origin}/u/${data.urlToken}`);
         } else {
             toast.error(data.error);

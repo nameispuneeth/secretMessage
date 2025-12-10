@@ -174,7 +174,6 @@ app.get("/api/google/:code",async(req,res)=>{
 app.post("/api/changetoCustomURL",async(req,res)=>{
     const URL=req.body.URL;
     const token=req.headers.authorization;
-    console.log(URL,token);
     try{
         const dummyuser=await User.findOne({shareid:URL});
         const decoded=jwt.verify(token,SecretCode);
