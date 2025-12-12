@@ -131,6 +131,7 @@ app.get("/api/ChangeURL",async (req,res) => {
             newsharedId=nanoid(10);
         }
         user.shareid=newsharedId;
+        user.shareidexpiryDate=NULL;
         await user.save();
         return res.send({status:'ok',urlToken:newsharedId});
         
@@ -183,6 +184,7 @@ app.post("/api/changetoCustomURL",async(req,res)=>{
         if(!user) return res.send({status:'error',error:'User Not Found'});
         if(dummyuser && dummyuser.username!=user.username) return res.send({status:'error',error:'URL exists. Choose Another.'});
         user.shareid=URL;
+        user.shareidexpiryDate=NULL;
         await user.save();
         return res.send({status:'ok'});
     }catch(e){
