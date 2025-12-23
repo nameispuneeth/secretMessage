@@ -26,6 +26,12 @@ router.post("/sendMessage",async(req,res)=>{
             sentAt:Date.now()
         })
         await user.save()
+        const savedMsg = user.messages[user.messages.length - 1];
+        const io = req.app.get("io");
+        const id = user._id.toString();
+        const len = id.length;
+        const userId = id.slice(Math.floor((len - 10) / 2), Math.floor((len - 10) / 2) + 10);
+        io.to(userId).emit("newmsg", savedMsg);
         res.send({status:'ok'});
     }catch(e){
         res.send({status:'error',error:'Network Issues'})

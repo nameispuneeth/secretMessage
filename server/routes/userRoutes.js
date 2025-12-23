@@ -11,8 +11,11 @@ router.get("/fetchuserdetails",async(req,res)=>{
     try{
         const user=await User.findOne({email:req.email});
         if(!user) return res.send({status:'error',error:'User Not Found'});
-        if(user.shareidexpiryDate!=null && user.shareidexpiryDate<new Date()) return res.send({status:'ok',messages:user.messages,shareid:user.shareid,Expired:true});
-        res.send({status:'ok',messages:user.messages,shareid:user.shareid})
+        const id = user._id.toString();
+        const len = id.length;
+        const middle10 = id.slice(Math.floor((len - 10) / 2), Math.floor((len - 10) / 2) + 10);
+        if(user.shareidexpiryDate!=null && user.shareidexpiryDate<new Date()) return res.send({status:'ok',messages:user.messages,shareid:user.shareid,Expired:true,userId:middle10});
+        res.send({status:'ok',messages:user.messages,shareid:user.shareid,userId:middle10})
     }catch(e){
         res.send({status:'error',error:"Network Issues"});
     }

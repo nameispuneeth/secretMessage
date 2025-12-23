@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import io from 'socket.io-client';
+const socket=io.connect("${import.meta.env.VITE_APP_API_BACKEND_URL}");
 
 export default function Home() {
     const [messagesLoading, setmessagesLoading] = useState(false);
@@ -14,6 +16,16 @@ export default function Home() {
     const [customURL, setcustomURL] = useState(false);
     const [settingExpiry, setsettingExpiry] = useState(false);
 
+    useEffect(()=>{
+        const handler = (data) => {
+            setmessages((prev) => [data, ...prev]);
+          };
+        socket.on("newmsg",handler)
+        return () => {
+            socket.off("newmsg", handler);
+          };
+    },[]);
+
     const fetchDetails = async () => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
         if (!token) {
@@ -21,7 +33,6 @@ export default function Home() {
             navigate("/signin");
             return;
         }
-        console.log(token);
         let response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/fetchuserdetails`, {
             method: "GET",
             headers: {
@@ -31,10 +42,10 @@ export default function Home() {
         })
 
         let data = await response.json();
-        console.log(data);
         if (data.status == "ok") {
             if(data.Expired) toast.error("Your URL is Expired");
             setmessages(data.messages.reverse());
+            socket.emit("join", data.userId);
             setURL(`${window.location.origin}/u/${data.shareid}`);
         } else {
             toast.error(data.error);
@@ -98,14 +109,14 @@ export default function Home() {
         let minutes = Math.floor(diff / 60);
         let seconds = Math.floor(diff);
 
-        if (years > 0) dateStr = `${years} ${years > 1 ? 'Years' : 'Year'}`
-        else if (months > 0) dateStr = `${months} ${months > 1 ? 'Months' : 'Month'}`
-        else if (weeks > 0) dateStr = `${weeks} ${weeks > 1 ? 'Weeks' : 'Week'}`
-        else if (days > 0) dateStr = `${days} ${days > 1 ? 'Days' : 'Day'}`
-        else if (hours > 0) dateStr = `${hours} ${hours > 1 ? 'Hours' : 'Hour'}`
-        else if (minutes > 0) dateStr = `${minutes} ${minutes > 1 ? 'Minutes' : 'Minute'}`
-        else dateStr = `${seconds} ${seconds > 1 ? 'Seconds' : 'Second'}`
-
+        if (years > 0) dateStr = `${years} ${years > 1 ? 'Years' : 'Year'} Ago `
+        else if (months > 0) dateStr = `${months} ${months > 1 ? 'Months' : 'Month'} Ago`
+        else if (weeks > 0) dateStr = `${weeks} ${weeks > 1 ? 'Weeks' : 'Week'} Ago`
+        else if (days > 0) dateStr = `${days} ${days > 1 ? 'Days' : 'Day'} Ago`
+        else if (hours > 0) dateStr = `${hours} ${hours > 1 ? 'Hours' : 'Hour'} Ago`
+        else if (minutes > 0) dateStr = `${minutes} ${minutes > 1 ? 'Minutes' : 'Minute'} Ago`
+        else if(seconds>0) dateStr = `${seconds} Seconds Ago`
+        else dateStr="Just Now"
         return dateStr;
     }
 
@@ -117,7 +128,7 @@ export default function Home() {
         const pastdate = new Date(val.sentAt);
         const currDate = new Date();
         const diff = (currDate - pastdate) / 1000;
-        let dateStr = DateDiff(diff) + " Ago";
+        let dateStr = DateDiff(diff);
 
         return (
             <div className="bg-[rgba(50,50,50,1)] rounded-sm p-2 m-3 overflow-hidden">

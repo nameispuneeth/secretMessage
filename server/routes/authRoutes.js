@@ -11,7 +11,7 @@ router.post("/signup",async (req,res)=>{
     const {username,email,password}=req.body;
     try{
         const user=await User.findOne({email});
-        if(user) res.send({status:'error',error:'Email already exists'});
+        if(user) return res.send({status:'error',error:'Email already exists'});
         const newPwd=await bcrypt.hash(password,10);
         let newsharedId=nanoid(10);
         while(await User.findOne({shareid:newsharedId})){
