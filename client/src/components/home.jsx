@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import io from 'socket.io-client';
-const socket=io.connect("${import.meta.env.VITE_APP_API_BACKEND_URL}");
+const socket=io.connect(`${import.meta.env.VITE_APP_API_BACKEND_URL}`);
 
 export default function Home() {
     const [messagesLoading, setmessagesLoading] = useState(false);

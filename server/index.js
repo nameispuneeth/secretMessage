@@ -25,7 +25,6 @@ app.use(express.json());
 io.on("connection", (socket) => {
 
     socket.on("join", (userId) => {
-        console.log(userId);
         socket.join(userId);
     });
 
